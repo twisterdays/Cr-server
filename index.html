@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>༒︎    𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑    ༒︎⁩  Offline WhatsApp Server </title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --theme-primary: #2d1b69;
+      --theme-secondary: #1a0f3d;
+      --theme-bg: linear-gradient(135deg, #1a0f3d 0%, #2d1b69 50%, #4a2b8f 100%);
+      --theme-surface: rgba(45, 27, 105, 0.85);
+      --theme-text: #ffffff;
+      --theme-text-secondary: #b8a9d9;
+      --theme-border: rgba(184, 169, 217, 0.2);
+      --theme-accent: #00d4ff;
+      --theme-accent-secondary: #7c3aed;
+      --theme-success: #10b981;
+      --theme-error: #ef4444;
+      --theme-warning: #f59e0b;
+      --theme-card-hover: rgba(0, 212, 255, 0.1);
+    }
+
+    [data-theme="light"] {
+      --theme-primary: #f1f5f9;
+      --theme-secondary: #e2e8f0;
+      --theme-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+      --theme-surface: rgba(255, 255, 255, 0.9);
+      --theme-text: #0f172a;
+      --theme-text-secondary: #475569;
+      --theme-border: rgba(15, 23, 42, 0.1);
+      --theme-accent: #2563eb;
+      --theme-accent-secondary: #7c3aed;
+      --theme-card-hover: rgba(37, 99, 235, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--theme-bg);
+      background-attachment: fixed;
+      color: var(--theme-text);
+      overflow-x: hidden;
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--theme-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 25px;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .sidebar-toggle {
+      background: var(--theme-accent);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-toggle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 212, 255, 0.5);
+    }
+
+    .server-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--theme-text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .server-name i {
+      font-size: 28px;
+      color: #25D366;
+      -webkit-text-fill-color: #25D366;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .theme-switcher {
+      background: var(--theme-accent);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .theme-switcher:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 212, 255, 0.5);
+    }
+
+    .theme-switcher i {
+      font-size: 18px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 65px;
+      left: 0;
+      width: 280px;
+      height: calc(100vh - 65px);
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--theme-border);
+      padding: 25px 0;
+      z-index: 99;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      padding: 0 25px 25px 25px;
+      border-bottom: 1px solid var(--theme-border);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--theme-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 0 15px;
+    }
+
+    .sidebar-menu li {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 18px;
+      color: var(--theme-text);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .sidebar-menu a:hover {
+      background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .sidebar-menu a.active {
+      background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      color: white;
+    }
+
+    .sidebar-menu i {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      margin-top: 65px;
+      padding: 30px;
+      min-height: calc(100vh - 65px);
+      transition: margin-left 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.expanded {
+      margin-left: 0;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--theme-border);
+      padding: 40px 30px;
+      margin-left: 280px;
+      transition: margin-left 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer.expanded {
+      margin-left: 0;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 50px;
+    }
+
+    .footer-section h4 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--theme-accent);
+    }
+
+    .footer-section p {
+      color: var(--theme-text-secondary);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+
+    .footer-links a {
+      color: var(--theme-text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      font-size: 15px;
+    }
+
+    .footer-links a:hover {
+      color: var(--theme-accent);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .social-icons a {
+      width: 45px;
+      height: 45px;
+      background: var(--theme-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--theme-text);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 18px;
+    }
+
+    .social-icons a:hover {
+      background: var(--theme-accent);
+      color: white;
+      transform: translateY(-5px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 25px;
+      border-top: 1px solid var(--theme-border);
+      color: var(--theme-text-secondary);
+      font-size: 14px;
+    }
+
+    /* Approval Page */
+    .approval-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .approval-card {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 2.5%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .approval-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .approval-header i {
+      font-size: 80px;
+      color: #25D366;
+      margin-bottom: 25px;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .approval-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .approval-header p {
+      color: var(--theme-text-secondary);
+      font-size: 16px;
+    }
+
+    .approval-key-display {
+      background: rgba(0, 212, 255, 0.1);
+      border: 1.1px dashed var(--theme-accent);
+      border-radius: 8px;
+      padding: 25px;
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .approval-key-display label {
+      display: block;
+      font-size: 13px;
+      color: var(--theme-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .approval-key-display .key {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--theme-accent);
+      font-family: 'Courier New', monospace;
+      letter-spacing: 3px;
+      word-break: break-all;
+    }
+
+    .approval-status {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      padding: 18px;
+      border-radius: 8px;
+      margin: 25px 0;
+      text-align: center;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 15px;
+    }
+
+    .approval-status.approved {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
+    }
+
+    .approval-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 212, 255, 0.5);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: white;
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(37, 211, 102, 0.4);
+    }
+
+    .btn.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    .btn.loading .spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Auth Pages */
+    .auth-page {
+      display: none;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .auth-card {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 50px 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .auth-header h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--theme-text);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1.3px solid var(--theme-border);
+      border-radius: 8px;
+      color: var(--theme-text);
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--theme-accent);
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    }
+
+    .form-group input::placeholder {
+      color: var(--theme-text-secondary);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 25px;
+      color: var(--theme-text-secondary);
+      font-size: 15px;
+    }
+
+    .auth-switch a {
+      color: var(--theme-accent);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+
+    .error-msg, .success-msg {
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 22px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    .success-msg {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #10b981;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard-header {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 35px;
+      margin-bottom: 35px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .dashboard-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .user-badge.admin {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .user-badge.user {
+      background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    }
+
+    .user-badge i {
+      font-size: 16px;
+    }
+
+    .dashboard-subtitle {
+      color: var(--theme-text-secondary);
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 35px;
+    }
+
+    .stat-card {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 30px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--theme-accent), var(--theme-accent-secondary));
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .stat-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .stat-card-title {
+      font-size: 13px;
+      color: var(--theme-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-weight: 600;
+    }
+
+    .stat-card-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--theme-accent);
+    }
+
+    .stat-card-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--theme-text);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-card-change {
+      font-size: 14px;
+      color: var(--theme-success);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .dashboard-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .dashboard-actions button {
+      width: 100%;
+    }
+
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    /* Modern Session Card */
+    .session-card {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .session-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(37, 211, 102, 0.3);
+      border-color: #25D366;
+    }
+
+    .session-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #25D366, #128C7E);
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .session-title h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--theme-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .session-title p {
+      font-size: 16px;
+      color: var(--theme-accent);
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .session-status {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #10b981;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .session-status i {
+      font-size: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    .session-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .detail-item {
+      background: rgba(0, 212, 255, 0.05);
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--theme-border);
+    }
+
+    .detail-item label {
+      font-size: 10px;
+      color: var(--theme-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .detail-item span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--theme-text);
+    }
+
+    .session-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-small {
+      width: 100%;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-console {
+      background: rgba(0, 212, 255, 0.2);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      color: var(--theme-accent);
+    }
+
+    .btn-console:hover {
+      background: rgba(0, 212, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-stop {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    .btn-stop:hover {
+      background: rgba(239, 68, 68, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--theme-text-secondary);
+    }
+
+    .empty-state i {
+      font-size: 70px;
+      margin-bottom: 25px;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      color: var(--theme-text);
+    }
+
+    /* Help Section */
+    .help-section {
+      display: none;
+    }
+
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    .help-card {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 35px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .help-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--theme-accent);
+      box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+    }
+
+    .help-card-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: var(--theme-accent);
+      margin-bottom: 25px;
+    }
+
+    .help-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .help-card p {
+      color: var(--theme-text-secondary);
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .help-card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .help-card ul li {
+      color: var(--theme-text-secondary);
+      padding: 10px 0;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .help-card ul li:before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--theme-success);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--theme-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 35px;
+      max-width: 95%;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .modal-header h3 {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-close {
+      background: rgba(239, 68, 68, 0.2);
+      border: none;
+      color: #ef4444;
+      font-size: 28px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: var(--theme-error);
+      color: white;
+      transform: rotate(90deg);
+    }
+
+    .form-row {
+      margin-bottom: 22px;
+    }
+
+    .form-row label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--theme-text);
+    }
+
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1.3px solid var(--theme-border);
+      border-radius: 8px;
+      color: var(--theme-text);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus {
+      outline: none;
+      border-color: var(--theme-accent);
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    }
+
+    .console-viewer {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 22px;
+      max-height: 450px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .console-line {
+      padding: 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      background: var(--theme-surface);
+      color: var(--theme-text-secondary);
+      word-break: break-word;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .footer {
+        margin-left: 0;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 35px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sessions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .help-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .server-name span {
+        display: none;
+      }
+
+      .status-bar {
+        padding: 0 15px;
+      }
+
+      .approval-card {
+        padding: 35px 25px;
+        margin: 0 2.5%;
+      }
+
+      .auth-card {
+        padding: 35px 25px;
+      }
+
+      .auth-page {
+        padding: 20px 10px;
+      }
+
+      .session-details {
+        grid-template-columns: 1fr;
+      }
+
+      .session-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        padding: 25px 20px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .approval-card {
+        max-width: 90%;
+        margin: 0 5%;
+      }
+
+      .auth-page {
+        max-width: 90%;
+        margin: 0 5%;
+      }
+
+      .modal-content {
+        max-width: 90%;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .approval-card {
+        max-width: 85%;
+        margin: 0 7.5%;
+      }
+
+      .auth-page {
+        max-width: 85%;
+        margin: 0 7.5%;
+      }
+
+      .modal-content {
+        max-width: 85%;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .approval-card {
+        max-width: 80%;
+        margin: 0 10%;
+      }
+
+      .auth-page {
+        max-width: 80%;
+        margin: 0 10%;
+      }
+
+      .modal-content {
+        max-width: 80%;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--theme-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--theme-border);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--theme-accent);
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <!-- Approval Page -->
+  <div id="approvalPage" class="approval-page">
+    <div class="approval-card">
+      <div class="approval-header">
+        <i class="fab fa-whatsapp"></i>
+        <h1>༒︎    𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑    ༒︎⁩ Offline WhatsApp Server </h1>
+        <p>Approval Required to Access</p>
+      </div>
+
+      <div class="approval-key-display">
+        <label>Your Unique Approval Key</label>
+        <div class="key" id="approvalKeyDisplay">Generating...</div>
+      </div>
+
+      <div class="approval-status" id="approvalStatus">
+        <i class="fas fa-clock"></i>
+        <span>Waiting for approval...</span>
+      </div>
+
+      <div class="approval-actions">
+        <button class="btn btn-primary" id="checkApprovalBtn">
+          <span class="spinner"></span>
+          <i class="fas fa-check-circle"></i>
+          <span>Check Approval Status</span>
+        </button>
+        <button class="btn btn-whatsapp" id="sendApprovalBtn">
+          <i class="fab fa-whatsapp"></i>
+          <span>Send Approval Request</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar" style="display: none;" id="statusBar">
+    <div class="status-bar-left">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="server-name">
+        <i class="fab fa-whatsapp"></i>
+        <span>Offline Whatsapp Server</span>
+      </div>
+    </div>
+    <div class="status-bar-right">
+      <button class="theme-switcher" id="themeSwitcher">
+        <i class="fas fa-moon"></i>
+        <span id="currentTheme">Dark Theme</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar hidden" id="sidebar" style="display: none;">
+    <div class="sidebar-header">
+      <h3 id="sidebarUserRole">Navigation</h3>
+    </div>
+    <ul class="sidebar-menu" id="sidebarMenu">
+      <!-- Menu items will be added dynamically -->
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content expanded" id="mainContent" style="display: none;">
+    <!-- Login Page -->
+    <div class="auth-page" id="loginPage">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>Login to Dashboard</h2>
+          <p>Enter your credentials to continue</p>
+        </div>
+
+        <div id="loginError" class="error-msg"></div>
+        <div id="loginSuccess" class="success-msg"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> Username</label>
+            <input type="text" id="loginUsername" placeholder="Enter username" required>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter password" required>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <span class="spinner"></span>
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </button>
+        </form>
+
+        <div class="auth-switch">
+          Don't have an account? <a id="showSignup">Sign up here</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signup Page -->
+    <div class="auth-page" id="signupPage" style="display: none;">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>Create Account</h2>
+          <p>Join 𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑 🔥 WhatsApp Server</p>
+        </div>
+
+        <div id="signupError" class="error-msg"></div>
+        <div id="signupSuccess" class="success-msg"></div>
+
+        <form id="signupForm">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> Username</label>
+            <input type="text" id="signupUsername" placeholder="Choose username (min 3 chars)" required>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <input type="password" id="signupPassword" placeholder="Choose password (min 6 chars)" required>
+          </div>
+          <button type="submit" class="btn btn-success">
+            <span class="spinner"></span>
+            <i class="fas fa-user-plus"></i>
+            <span>Create Account</span>
+          </button>
+        </form>
+
+        <div class="auth-switch">
+          Already have an account? <a id="showLogin">Login here</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+      <div class="dashboard-header">
+        <div class="dashboard-title">
+          <span id="welcomeText">Dashboard</span>
+          <span class="user-badge" id="userBadge">
+            <i class="fas fa-user"></i>
+            <span id="badgeText">USER</span>
+          </span>
+        </div>
+        <div class="dashboard-subtitle" id="userRoleText">User Dashboard</div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-card-title"> 𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑🔥 Offline WhatsApp Server Uptime</span>
+              <div class="stat-card-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+            </div>
+            <div class="stat-card-value" id="serverUptime">Loading...</div>
+            <div class="stat-card-change">
+              <i class="fas fa-check-circle"></i>
+              <span>Server Running</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-card-title">Total Sessions</span>
+              <div class="stat-card-icon">
+                <i class="fas fa-server"></i>
+              </div>
+            </div>
+            <div class="stat-card-value" id="totalSessions">0</div>
+            <div class="stat-card-change">
+              <i class="fas fa-arrow-up"></i>
+              <span>Active Sessions</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="totalUsersCard" style="display: none;">
+            <div class="stat-card-header">
+              <span class="stat-card-title">Total Users</span>
+              <div class="stat-card-icon">
+                <i class="fas fa-users"></i>
+              </div>
+            </div>
+            <div class="stat-card-value" id="totalUsers">0</div>
+            <div class="stat-card-change">
+              <i class="fas fa-user-check"></i>
+              <span>Registered Users</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-actions">
+          <button class="btn btn-primary" id="createSessionBtn">
+            <i class="fas fa-plus"></i> New Session
+          </button>
+          <button class="btn btn-primary" id="refreshBtn">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <div id="sessionsContainer">
+        <div class="empty-state">
+          <i class="fas fa-spinner fa-spin"></i>
+          <h3>Loading sessions...</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section" id="helpSection">
+      <div class="dashboard-header">
+        <div class="dashboard-title">
+          <i class="fas fa-question-circle"></i>
+          <span>Help & Documentation</span>
+        </div>
+        <div class="dashboard-subtitle">Learn about Offline WhatsApp Server</div>
+      </div>
+
+      <div class="help-grid">
+        <div class="help-card">
+          <div class="help-card-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h3>Getting Started</h3>
+          <p>༒︎    𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑    ༒︎⁩ Offline WhatsApp Server is a powerful automation platform for managing WhatsApp messaging at scale.</p>
+          <ul>
+            <li>Get your approval key approved</li>
+            <li>Create an account or login</li>
+            <li>Upload your WhatsApp creds.json</li>
+            <li>Start sending automated messages</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <div class="help-card-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>Security Features</h3>
+          <p>Your security is our priority. The server includes advanced protection mechanisms.</p>
+          <ul>
+            <li>Approval-based access control</li>
+            <li>Browser-based unique keys</li>
+            <li>Encrypted credentials storage</li>
+            <li>Session isolation</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <div class="help-card-icon">
+            <i class="fas fa-cogs"></i>
+          </div>
+          <h3>Advanced Features</h3>
+          <p>Powerful automation capabilities for your WhatsApp workflows.</p>
+          <ul>
+            <li>Multiple session management</li>
+            <li>Automatic reconnection</li>
+            <li>Message scheduling</li>
+            <li>Real-time console logs</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <div class="help-card-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>Performance</h3>
+          <p>Built for reliability and high performance at scale.</p>
+          <ul>
+            <li>24/7 server uptime</li>
+            <li>Auto session recovery</li>
+            <li>Optimized message delivery</li>
+            <li>Real-time status monitoring</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <div class="help-card-icon">
+            <i class="fas fa-life-ring"></i>
+          </div>
+          <h3>Support</h3>
+          <p>Need help? We're here to assist you.</p>
+          <ul>
+            <li>WhatsApp: +916387071869</li>
+            <li>24/7 Technical Support</li>
+            <li>Documentation Available</li>
+            <li>Community Forum</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <div class="help-card-icon">
+            <i class="fas fa-code"></i>
+          </div>
+          <h3>Technical Details</h3>
+          <p>Built with modern technologies for maximum reliability.</p>
+          <ul>
+            <li>Node.js + Express Backend</li>
+            <li>Baileys WhatsApp Library</li>
+            <li>Multi-file Auth State</li>
+            <li>Real-time WebSocket Support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer expanded" id="footer" style="display: none;">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>༒︎    𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑    ༒︎⁩ WhatsApp Server</h4>
+        <p>Professional WhatsApp automation and management platform. Send messages at scale with advanced features and 24/7 uptime.</p>
+        <div class="social-icons">
+          <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://wa.me/+923257571754" title="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#privacy-policy">Privacy Policy</a></li>
+          <li><a href="#terms-conditions">Terms & Conditions</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+          <li><a href="#about">About Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul class="footer-links">
+          <li><a href="#documentation">Documentation</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#support">Technical Support</a></li>
+          <li><a href="https://wa.me/916387071869" target="_blank">WhatsApp Support</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026   𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑   Offline WhatsApp Server. All rights reserved. | Powered by Advanced Automation Technology</p>
+    </div>
+  </div>
+
+  <!-- Create Session Modal -->
+  <div id="createSessionModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-server"></i> Create New Session</h3>
+        <button class="modal-close" id="closeCreateModal">&times;</button>
+      </div>
+
+      <div id="createSessionError" class="error-msg"></div>
+
+      <form id="createSessionForm" enctype="multipart/form-data">
+        <div class="form-row">
+          <label><i class="fas fa-signature"></i> Haters Name</label>
+          <input type="text" name="name" placeholder="Enter Hatersname" required>
+        </div>
+
+        <div class="form-row">
+          <label><i class="fas fa-list"></i> Target Type</label>
+          <select name="type" required>
+            <option value="">Select type</option>
+            <option value="contact">Contact</option>
+            <option value="gc">Group</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label><i class="fas fa-hashtag"></i> Target ID / Number</label>
+          <input type="text" name="targetID" placeholder="e.g., 916387071869 or group ID" required>
+        </div>
+
+        <div class="form-row">
+          <label><i class="fas fa-hourglass-half"></i> Delay (seconds)</label>
+          <input type="number" name="delayTime" min="1" value="5" required>
+        </div>
+
+        <div class="form-row">
+          <label><i class="fas fa-file-code"></i> creds.json</label>
+          <input type="file" name="creds" accept=".json" required>
+        </div>
+
+        <div class="form-row">
+          <label><i class="fas fa-file-alt"></i> message.txt</label>
+          <input type="file" name="messageFile" accept=".txt" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <span class="spinner"></span>
+          <i class="fas fa-rocket"></i>
+          <span>Start Session</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Console Modal -->
+  <div id="consoleModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-terminal"></i> Session Console</h3>
+        <button class="modal-close" id="closeConsoleModal">&times;</button>
+      </div>
+
+      <div class="console-viewer" id="consoleViewer">
+        <div class="console-line">Loading logs...</div>
+      </div>
+
+      <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr; gap: 12px;">
+        <button class="btn btn-primary" id="refreshConsole">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // App State
+    let currentUser = {
+      username: null,
+      role: null,
+      approvalKey: null
+    };
+
+    let currentConsoleSessionId = null;
+    let consoleInterval = null;
+    let sidebarOpen = false;
+
+    // Generate or retrieve approval key
+    async function initializeApprovalKey() {
+      let approvalKey = localStorage.getItem('approvalKey');
+      
+      if (!approvalKey) {
+        try {
+          const fingerprint = {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            screenResolution: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          };
+
+          const response = await fetch('/api/generate-approval-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fingerprint)
+          });
+
+          const data = await response.json();
+          
+          if (data.ok) {
+            approvalKey = data.approvalKey;
+            localStorage.setItem('approvalKey', approvalKey);
+          }
+        } catch (e) {
+          console.error('Failed to generate approval key:', e);
+        }
+      }
+
+      document.getElementById('approvalKeyDisplay').textContent = approvalKey || 'ERROR';
+      return approvalKey;
+    }
+
+    // Check approval status
+    async function checkApprovalStatus() {
+      const approvalKey = localStorage.getItem('approvalKey');
+      const btn = document.getElementById('checkApprovalBtn');
+      const statusDiv = document.getElementById('approvalStatus');
+
+      if (!approvalKey) {
+        statusDiv.innerHTML = '<i class="fas fa-times-circle"></i><span>No approval key found</span>';
+        return;
+      }
+
+      btn.classList.add('loading');
+
+      try {
+        const response = await fetch('/api/check-approval', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ approvalKey })
+        });
+
+        const data = await response.json();
+
+        if (data.ok && data.approved) {
+          statusDiv.classList.add('approved');
+          statusDiv.innerHTML = '<i class="fas fa-check-circle"></i><span>✅ Your key is approved! Proceeding to login...</span>';
+          
+          setTimeout(() => {
+            showLoginPage();
+          }, 1500);
+        } else {
+          statusDiv.classList.remove('approved');
+          statusDiv.innerHTML = '<i class="fas fa-clock"></i><span>⏳ Waiting for approval... Please send request to admin.</span>';
+        }
+      } catch (e) {
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Error checking status</span>';
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    // Send approval request via WhatsApp
+    function sendApprovalRequest() {
+      const approvalKey = localStorage.getItem('approvalKey');
+      
+      if (!approvalKey) {
+        alert('No approval key found!');
+        return;
+      }
+
+      const message = `Hello   𝐋 𝐔 𝐂 𝐈 𝐅 𝐄 𝐑 🔥 Sir please approve my key ${approvalKey}`;
+      const whatsappUrl = `https://wa.me/917996352002?text=${encodeURIComponent(message)}`;
+      
+      window.open(whatsappUrl, '_blank');
+    }
+
+    // Show login page
+    function showLoginPage() {
+      document.getElementById('approvalPage').style.display = 'none';
+      document.getElementById('statusBar').style.display = 'flex';
+      document.getElementById('sidebar').style.display = 'block';
+      document.getElementById('mainContent').style.display = 'block';
+      document.getElementById('footer').style.display = 'block';
+      document.getElementById('loginPage').style.display = 'block';
+      
+      currentUser.approvalKey = localStorage.getItem('approvalKey');
+    }
+
+    // Theme Switcher (Dark/Light only)
+    let isDarkTheme = true;
+
+    function switchTheme() {
+      isDarkTheme = !isDarkTheme;
+      const theme = isDarkTheme ? 'dark' : 'light';
+      
+      document.body.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      
+      const themeIcon = document.querySelector('#themeSwitcher i');
+      const themeText = document.getElementById('currentTheme');
+      
+      if (isDarkTheme) {
+        themeIcon.className = 'fas fa-moon';
+        themeText.textContent = 'Dark Theme';
+      } else {
+        themeIcon.className = 'fas fa-sun';
+        themeText.textContent = 'Light Theme';
+      }
+    }
+
+    // Initialize saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    isDarkTheme = (savedTheme === 'dark');
+    document.body.setAttribute('data-theme', savedTheme);
+    if (!isDarkTheme) {
+      document.querySelector('#themeSwitcher i').className = 'fas fa-sun';
+      document.getElementById('currentTheme').textContent = 'Light Theme';
+    }
+
+    document.getElementById('themeSwitcher').addEventListener('click', switchTheme);
+
+    // Sidebar Toggle with auto-close on mobile
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const footer = document.getElementById('footer');
+      
+      sidebarOpen = !sidebarOpen;
+      
+      if (sidebarOpen) {
+        sidebar.classList.remove('hidden');
+        if (window.innerWidth > 768) {
+          mainContent.classList.remove('expanded');
+          footer.classList.remove('expanded');
+        } else {
+          sidebar.classList.add('show');
+        }
+      } else {
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('show');
+        mainContent.classList.add('expanded');
+        footer.classList.add('expanded');
+      }
+    });
+
+    // Approval Page Events
+    document.getElementById('checkApprovalBtn').addEventListener('click', checkApprovalStatus);
+    document.getElementById('sendApprovalBtn').addEventListener('click', sendApprovalRequest);
+
+    // Auth Navigation
+    document.getElementById('showSignup').addEventListener('click', () => {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('signupPage').style.display = 'block';
+    });
+
+    document.getElementById('showLogin').addEventListener('click', () => {
+      document.getElementById('signupPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'block';
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.btn');
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const approvalKey = localStorage.getItem('approvalKey');
+      const errorDiv = document.getElementById('loginError');
+
+      errorDiv.style.display = 'none';
+      btn.classList.add('loading');
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, approvalKey })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          currentUser.username = data.username;
+          currentUser.role = data.role;
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('role', data.role);
+          
+          initDashboard();
+        } else {
+          errorDiv.textContent = data.error || 'Login failed';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Connection error. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Signup
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.btn');
+      const username = document.getElementById('signupUsername').value;
+      const password = document.getElementById('signupPassword').value;
+      const approvalKey = localStorage.getItem('approvalKey');
+      const errorDiv = document.getElementById('signupError');
+      const successDiv = document.getElementById('signupSuccess');
+
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      btn.classList.add('loading');
+
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, approvalKey })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          successDiv.textContent = 'Account created successfully! Redirecting to login...';
+          successDiv.style.display = 'block';
+          
+          setTimeout(() => {
+            document.getElementById('signupPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('loginUsername').value = username;
+          }, 1500);
+        } else {
+          errorDiv.textContent = data.error || 'Signup failed';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Connection error. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Initialize Dashboard
+    function initDashboard() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('signupPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      
+      // Update welcome text and badge
+      document.getElementById('welcomeText').textContent = currentUser.username;
+      const badge = document.getElementById('userBadge');
+      const badgeText = document.getElementById('badgeText');
+      
+      if (currentUser.role === 'admin') {
+        badge.classList.remove('user');
+        badge.classList.add('admin');
+        badgeText.textContent = 'ADMIN';
+        badge.querySelector('i').className = 'fas fa-crown';
+        document.getElementById('userRoleText').textContent = 'Administrator Dashboard';
+      } else {
+        badge.classList.remove('admin');
+        badge.classList.add('user');
+        badgeText.textContent = 'USER';
+        badge.querySelector('i').className = 'fas fa-user';
+        document.getElementById('userRoleText').textContent = 'User Dashboard';
+      }
+      
+      updateSidebar();
+      loadSessions();
+      startServerUptimeUpdate();
+      
+      if (currentUser.role === 'admin') {
+        document.getElementById('totalUsersCard').style.display = 'block';
+        loadTotalUsers();
+      }
+    }
+
+    // Update Sidebar Menu
+    function updateSidebar() {
+      const menu = document.getElementById('sidebarMenu');
+      document.getElementById('sidebarUserRole').textContent = currentUser.role === 'admin' ? 'Admin Menu' : 'User Menu';
+      
+      let menuItems = [];
+      
+      if (currentUser.role === 'admin') {
+        menuItems = [
+          { icon: 'fa-home', text: 'Dashboard', page: 'dashboard' },
+          { icon: 'fa-question-circle', text: 'Help', page: 'help' },
+          { icon: 'fa-sign-out-alt', text: 'Logout', action: 'logout' }
+        ];
+      } else {
+        menuItems = [
+          { icon: 'fa-home', text: 'Dashboard', page: 'dashboard' },
+          { icon: 'fa-question-circle', text: 'Help', page: 'help' },
+          { icon: 'fa-sign-out-alt', text: 'Logout', action: 'logout' }
+        ];
+      }
+      
+      menu.innerHTML = menuItems.map(item => `
+        <li>
+          <a data-page="${item.page || ''}" data-action="${item.action || ''}">
+            <i class="fas ${item.icon}"></i>
+            <span>${item.text}</span>
+          </a>
+        </li>
+      `).join('');
+      
+      menu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const action = e.currentTarget.getAttribute('data-action');
+          const page = e.currentTarget.getAttribute('data-page');
+          
+          if (action === 'logout') {
+            logout();
+          } else if (page === 'dashboard') {
+            showDashboard();
+          } else if (page === 'help') {
+            showHelp();
+          }
+          
+          // Update active state
+          menu.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+          e.currentTarget.classList.add('active');
+          
+          // Auto-close sidebar on mobile
+          if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('show');
+            sidebarOpen = false;
+          }
+        });
+      });
+      
+      menu.querySelector('a').classList.add('active');
+    }
+
+    // Show Dashboard
+    function showDashboard() {
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('helpSection').style.display = 'none';
+      loadSessions();
+    }
+
+    // Show Help
+    function showHelp() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('helpSection').style.display = 'block';
+    }
+
+    // Logout
+    function logout() {
+      if (!confirm('Are you sure you want to logout?')) return;
+      
+      currentUser = { username: null, role: null, approvalKey: null };
+      localStorage.removeItem('username');
+      localStorage.removeItem('role');
+      
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('helpSection').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'block';
+      
+      sidebarOpen = false;
+      document.getElementById('sidebar').classList.add('hidden');
+      document.getElementById('mainContent').classList.add('expanded');
+      document.getElementById('footer').classList.add('expanded');
+      
+      if (consoleInterval) {
+        clearInterval(consoleInterval);
+        consoleInterval = null;
+      }
+    }
+
+    // Server Uptime
+    function startServerUptimeUpdate() {
+      updateServerUptime();
+      setInterval(updateServerUptime, 1000);
+    }
+
+    async function updateServerUptime() {
+      try {
+        const response = await fetch('/api/uptime');
+        const data = await response.json();
+        if (data.ok) {
+          document.getElementById('serverUptime').textContent = data.uptimeFormatted;
+        }
+      } catch (error) {
+        console.error('Failed to fetch uptime:', error);
+      }
+    }
+
+    // Load Total Users (Admin only)
+    async function loadTotalUsers() {
+      try {
+        const response = await fetch('/api/total-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: currentUser.role })
+        });
+
+        const data = await response.json();
+        if (data.ok) {
+          document.getElementById('totalUsers').textContent = data.totalUsers;
+        }
+      } catch (error) {
+        console.error('Failed to load total users:', error);
+      }
+    }
+
+    // Load Sessions
+    async function loadSessions() {
+      const container = document.getElementById('sessionsContainer');
+      
+      try {
+        const response = await fetch('/api/sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            username: currentUser.username, 
+            role: currentUser.role 
+          })
+        });
+
+        const data = await response.json();
+        
+        document.getElementById('totalSessions').textContent = data.sessions?.length || 0;
+
+        if (data.ok && data.sessions.length > 0) {
+          const grid = document.createElement('div');
+          grid.className = 'sessions-grid';
+
+          data.sessions.forEach(session => {
+            const card = createSessionCard(session);
+            grid.appendChild(card);
+          });
+
+          container.innerHTML = '';
+          container.appendChild(grid);
+        } else {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <h3>No sessions found</h3>
+              <p>Create your first automation session</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Error loading sessions</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Create Session Card
+    function createSessionCard(session) {
+      const card = document.createElement('div');
+      card.className = 'session-card';
+      
+      const createdDate = new Date(session.createdAt).toLocaleString();
+      
+      card.innerHTML = `
+        <div class="session-header">
+          <div class="session-title">
+            <h3>${session.prefixName || 'Bot'}</h3>
+            <p>${session.sessionId}</p>
+          </div>
+          <div class="session-status">
+            <i class="fas fa-circle"></i>
+            Running
+          </div>
+        </div>
+
+        <div class="session-details">
+          <div class="detail-item">
+            <label><i class="fas fa-clock"></i> Uptime</label>
+            <span>${session.uptime}</span>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-hourglass-half"></i> Delay</label>
+            <span>${session.delayMs / 1000}s</span>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-calendar"></i> Created</label>
+            <span>${createdDate}</span>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-user"></i> User</label>
+            <span>${session.username}</span>
+          </div>
+        </div>
+
+        <div class="session-actions">
+          <button class="btn-small btn-console" data-session-id="${session.sessionId}">
+            <i class="fas fa-terminal"></i> Console
+          </button>
+          <button class="btn-small btn-stop" data-session-id="${session.sessionId}">
+            <i class="fas fa-stop"></i> Stop
+          </button>
+        </div>
+      `;
+
+      card.querySelector('.btn-console').addEventListener('click', () => {
+        openConsole(session.sessionId);
+      });
+
+      card.querySelector('.btn-stop').addEventListener('click', () => {
+        stopSession(session.sessionId);
+      });
+
+      return card;
+    }
+
+    // Refresh Sessions
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      loadSessions();
+    });
+
+    // Create Session Modal
+    const createSessionModal = document.getElementById('createSessionModal');
+    document.getElementById('createSessionBtn').addEventListener('click', () => {
+      createSessionModal.classList.add('show');
+    });
+
+    document.getElementById('closeCreateModal').addEventListener('click', () => {
+      createSessionModal.classList.remove('show');
+    });
+
+    document.getElementById('createSessionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('.btn');
+      const errorDiv = document.getElementById('createSessionError');
+      const formData = new FormData(e.target);
+      
+      formData.append('username', currentUser.username);
+      formData.append('approvalKey', currentUser.approvalKey);
+
+      errorDiv.style.display = 'none';
+      btn.classList.add('loading');
+
+      try {
+        const response = await fetch('/send-message', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          createSessionModal.classList.remove('show');
+          e.target.reset();
+          loadSessions();
+        } else {
+          errorDiv.textContent = data.error || 'Failed to create session';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Connection error. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.classList.remove('loading');
+      }
+    });
+
+    // Console Modal
+    const consoleModal = document.getElementById('consoleModal');
+    
+    function openConsole(sessionId) {
+      currentConsoleSessionId = sessionId;
+      consoleModal.classList.add('show');
+      loadConsole();
+      
+      if (consoleInterval) clearInterval(consoleInterval);
+      consoleInterval = setInterval(loadConsole, 3000);
+    }
+
+    async function loadConsole() {
+      if (!currentConsoleSessionId) return;
+
+      try {
+        const response = await fetch(`/api/logs/${currentConsoleSessionId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            username: currentUser.username, 
+            role: currentUser.role 
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.ok && data.logs) {
+          const viewer = document.getElementById('consoleViewer');
+          viewer.innerHTML = '';
+          
+          if (data.logs.length === 0) {
+            viewer.innerHTML = '<div class="console-line">No logs yet.</div>';
+          } else {
+            data.logs.forEach(log => {
+              const line = document.createElement('div');
+              line.className = 'console-line';
+              line.textContent = log;
+              viewer.appendChild(line);
+            });
+            viewer.scrollTop = viewer.scrollHeight;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load console:', error);
+      }
+    }
+
+    document.getElementById('closeConsoleModal').addEventListener('click', () => {
+      consoleModal.classList.remove('show');
+      if (consoleInterval) {
+        clearInterval(consoleInterval);
+        consoleInterval = null;
+      }
+      currentConsoleSessionId = null;
+    });
+
+    document.getElementById('refreshConsole').addEventListener('click', () => {
+      loadConsole();
+    });
+
+    // Stop Session
+    async function stopSession(sessionId) {
+      if (!confirm('Are you sure you want to stop this session?')) return;
+
+      try {
+        const response = await fetch(`/stop-session/${sessionId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: currentUser.username })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          loadSessions();
+        } else {
+          alert(data.error || 'Failed to stop session');
+        }
+      } catch (error) {
+        alert('Connection error. Please try again.');
+      }
+    }
+
+    // Check if already logged in
+    const savedUsername = localStorage.getItem('username');
+    const savedRole = localStorage.getItem('role');
+    const savedApprovalKey = localStorage.getItem('approvalKey');
+
+    if (savedUsername && savedRole && savedApprovalKey) {
+      fetch('/api/check-approval', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approvalKey: savedApprovalKey })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok && data.approved) {
+          currentUser.username = savedUsername;
+          currentUser.role = savedRole;
+          currentUser.approvalKey = savedApprovalKey;
+          
+          showLoginPage();
+          initDashboard();
+        } else {
+          initializeApprovalKey();
+        }
+      })
+      .catch(() => {
+        initializeApprovalKey();
+      });
+    } else {
+      initializeApprovalKey();
+    }
+  </script>
+</body>
+</html>
