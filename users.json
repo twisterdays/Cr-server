@@ -1,15 +1,1 @@
-{
-  "admin": {
-    "username": "javed",
-    "password": "4951c0d08b45657abfd577d8d47828358a1c9172a1a8038a984fa9404a3614ac",
-    "role": "admin",
-    "createdAt": "2026-08-04T19:35:24.659Z"
-  },
-  "user_1785872311182": {
-    "username": "LUCIFER",
-    "password": "fdd1d2a7574aa83ec6b980542c13f445f7fe6b135e97117b1235e744576ff565",
-    "role": "user",
-    "approvalKey": "B4FC5696310232FD",
-    "createdAt": "2026-08-04T19:38:31.182Z"
-  }
-}
+
